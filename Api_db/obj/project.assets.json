@@ -9725,11 +9725,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\abita\\source\\repos\\Api_db\\Api_db\\Api_db.csproj",
+      "projectUniqueName": "C:\\Users\\abita\\source\\repos\\git_API\\BackEnd\\Api_db\\Api_db.csproj",
       "projectName": "Api_db",
-      "projectPath": "C:\\Users\\abita\\source\\repos\\Api_db\\Api_db\\Api_db.csproj",
+      "projectPath": "C:\\Users\\abita\\source\\repos\\git_API\\BackEnd\\Api_db\\Api_db.csproj",
       "packagesPath": "C:\\Users\\abita\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\abita\\source\\repos\\Api_db\\Api_db\\obj\\",
+      "outputPath": "C:\\Users\\abita\\source\\repos\\git_API\\BackEnd\\Api_db\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\abita\\AppData\\Roaming\\NuGet\\NuGet.Config",
