@@ -25,10 +25,10 @@ namespace Api_db.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Cliente>>> GetClientes()
         {
-          if (_context.Clientes == null)
-          {
-              return NotFound();
-          }
+            if (_context.Clientes == null)
+            {
+                return NotFound();
+            }
             return await _context.Clientes.ToListAsync();
         }
 
@@ -37,9 +37,9 @@ namespace Api_db.Controllers
         public async Task<ActionResult<Cliente>> GetCliente(int id)
         {
             if (_context.Clientes == null)
-          {
-              return NotFound();
-          }
+            {
+                return NotFound();
+            }
             var cliente = await _context.Clientes.FindAsync(id);
 
             if (cliente == null)
@@ -86,10 +86,10 @@ namespace Api_db.Controllers
         [HttpPost]
         public async Task<ActionResult<Cliente>> PostCliente(Cliente cliente)
         {
-          if (_context.Clientes == null)
-          {
-              return Problem("Entity set 'bancoContext.Clientes'  is null.");
-          }
+            if (_context.Clientes == null)
+            {
+                return Problem("Entity set 'bancoContext.Clientes'  is null.");
+            }
             _context.Clientes.Add(cliente);
             try
             {
@@ -152,6 +152,13 @@ namespace Api_db.Controllers
             }
             resp = new Response(exito, error);
             return JsonConvert.SerializeObject(resp);
+
+            //dotnet ef context scaffold "Data Source = ...." Microsoft.EntityFrameworkCore.SqlServer -o Models
+            //Scaffold-DbContext “Server=TuServidor;Database=StoreDB;User ID=TuUsuario;Password=TuContraseña” Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+
+            //Para hacer un update:
+            //
+            //Scaffold-DbContext -Tables Movimiento "Data Source=DESKTOP-3R4Q1SJ\SQLEXPRESS;Initial Catalog=banco;Integrated Security=True;Pooling=False" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
         }
 
         private bool ClienteExists(int id)

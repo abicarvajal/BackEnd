@@ -18,6 +18,7 @@ namespace Api_db.Models
 
         public virtual DbSet<Cliente> Clientes { get; set; } = null!;
         public virtual DbSet<Cuentum> Cuenta { get; set; } = null!;
+        public virtual DbSet<Moviento> Movientos { get; set; } = null!;
 
 //        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 //        {
@@ -82,6 +83,40 @@ namespace Api_db.Models
                 entity.Property(e => e.Saldo)
                     .HasColumnType("decimal(18, 0)")
                     .HasColumnName("SALDO");
+            });
+
+            modelBuilder.Entity<Moviento>(entity =>
+            {
+                entity.HasKey(e => e.Idmovimiento)
+                    .IsClustered(false);
+
+                entity.ToTable("MOVIENTO");
+
+                entity.HasIndex(e => e.Idcuenta, "RELATIONSHIP_2_FK");
+
+                entity.Property(e => e.Idmovimiento)
+                    .ValueGeneratedNever()
+                    .HasColumnName("IDMOVIMIENTO");
+
+                entity.Property(e => e.Fecha)
+                    .HasColumnType("datetime")
+                    .HasColumnName("FECHA");
+
+                entity.Property(e => e.Idcuenta).HasColumnName("IDCUENTA");
+
+                entity.Property(e => e.Saldofinal)
+                    .HasColumnType("decimal(18, 0)")
+                    .HasColumnName("SALDOFINAL");
+
+                entity.Property(e => e.Valor)
+                    .HasColumnType("decimal(18, 0)")
+                    .HasColumnName("VALOR");
+
+                entity.HasOne(d => d.IdcuentaNavigation)
+                    .WithMany(p => p.Movientos)
+                    .HasForeignKey(d => d.Idcuenta)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_MOVIENTO_RELATIONS_CUENTA");
             });
 
             OnModelCreatingPartial(modelBuilder);

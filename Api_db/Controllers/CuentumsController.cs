@@ -25,10 +25,10 @@ namespace Api_db.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Cuentum>>> GetCuenta()
         {
-          if (_context.Cuenta == null)
-          {
-              return NotFound();
-          }
+            if (_context.Cuenta == null)
+            {
+                return NotFound();
+            }
             return await _context.Cuenta.ToListAsync();
         }
 
@@ -36,10 +36,10 @@ namespace Api_db.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Cuentum>> GetCuentum(int id)
         {
-          if (_context.Cuenta == null)
-          {
-              return NotFound();
-          }
+            if (_context.Cuenta == null)
+            {
+                return NotFound();
+            }
             var cuentum = await _context.Cuenta.FindAsync(id);
 
             if (cuentum == null)
@@ -86,10 +86,10 @@ namespace Api_db.Controllers
         [HttpPost]
         public async Task<ActionResult<Cuentum>> PostCuentum(Cuentum cuentum)
         {
-          if (_context.Cuenta == null)
-          {
-              return Problem("Entity set 'bancoContext.Cuenta'  is null.");
-          }
+            if (_context.Cuenta == null)
+            {
+                return Problem("Entity set 'bancoContext.Cuenta'  is null.");
+            }
             _context.Cuenta.Add(cuentum);
             try
             {
@@ -130,64 +130,75 @@ namespace Api_db.Controllers
             return NoContent();
         }
 
-        [HttpPut("{numCuenta}/{cantidad}")]
-        public string transferCash(string numCuenta, int cantidad)
+        [HttpPut("{numCuenta}/{cant}/{tipoTransaccion}")]
+        public async Task<ActionResult<Response>> receiveCash(string numCuenta, int cant, string tipoTransaccion)
         {
             var exito = "";
             var error = "";
-            var result = _context.Cuenta.SingleOrDefault(p => p.Numero == numCuenta);
-            if (result!=null)
-            {
-                try
-                {
-                    if (result.Saldo - cantidad >= 0)
-                    {
-                        result.Saldo = result.Saldo - cantidad;
-                        _context.SaveChanges();
-                        exito = "Saldo modificado";
-                    }
-                    else
-                    {
-                        error = "Saldo insuficiente";
-                    }
-
-                }
-                catch (Exception ex)
-                {
-
-                }
-            }
-            Response resp = new Response(exito, error);
-            return JsonConvert.SerializeObject(resp);
-        }
-
-        [HttpPut("{numCuenta}/{cant}")]
-        public string receiveCash(string numCuenta, int cant)
-        {
-            var exito = "";
-            var error = "";
-            var result = _context.Cuenta.SingleOrDefault(p => p.Numero == numCuenta);
+            DateTime now = DateTime.Now;
+            var result = _context.Cuenta.SingleOrDefault(p => p.Numero.Equals(numCuenta));
             if (result != null)
             {
                 try
                 {
-                    result.Saldo = result.Saldo + cant;
-                    _context.SaveChanges();
-                    exito = "Saldo modificado";
+                    if (tipoTransaccion.Equals("transferencia"))
+                    {
+                        decimal sald = (decimal)(result.Saldo + cant);
+                        result.Saldo = result.Saldo + cant;
+                        _context.SaveChanges();
+                        exito = "Saldo modificado";
+                        await actualizaMovimientos(result.Idcuenta, now, cant, sald);
+                    }
+                    else if (tipoTransaccion.Equals("debito"))
+                    {
+                        if (result.Saldo - cant >= 0)
+                        {
+                            decimal sald = (decimal)(result.Saldo - cant);
+                            result.Saldo = result.Saldo - cant;
+                            _context.SaveChanges();
+                            exito = "Saldo modificado";
+                            await actualizaMovimientos(result.Idcuenta, now, cant, sald);
+                        }
+                        else
+                        {
+                            error = "Saldo insuficiente";
+                        }
+                    }
 
                 }
                 catch (Exception ex)
                 {
-                    error = "Ocurrio un error...";
+                    error = "Ocurrio un error..." + ex.Message;
                 }
             }
             Response resp = new Response(exito, error);
-            return JsonConvert.SerializeObject(resp);
+            return resp;
         }
 
         private bool CuentumExists(int id)
         {
             return (_context.Cuenta?.Any(e => e.Idcuenta == id)).GetValueOrDefault();
+        }
+
+        private async Task<ActionResult<Response>> actualizaMovimientos(int idCuenta, DateTime fecha, decimal valor, decimal saldoFinal)
+        {
+            int cant = _context.Movientos.Count() + 1;
+            var error = "";
+            var exito = "";
+            Moviento moviento = new Moviento { Idcuenta = idCuenta, Fecha = fecha, Valor = valor, Saldofinal = saldoFinal, Idmovimiento = cant };
+            _context.Movientos.Add(moviento);
+            try
+            {
+                await _context.SaveChangesAsync();
+                exito = "Se ingreso movimiento con exito!";
+            }
+            catch (DbUpdateException e)
+            {
+                error = e.Message;
+
+            }
+            Response response = new Response(exito, error);
+            return response;
         }
     }
 }
